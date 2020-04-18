@@ -1,0 +1,39 @@
+<?php
+
+use App\Application;
+use App\CommandLine\CommandLineHelper;
+use App\Csv\CsvFileHelper;
+use App\Validation\ValidationManager;
+use App\Validation\Validator\BooleanValidator;
+use App\Validation\Validator\DateTimeValidator;
+use App\Validation\Validator\DateValidator;
+use App\Validation\Validator\FloatValidator;
+use App\Validation\Validator\IntegerValidator;
+use App\Validation\Validator\StringValidator;
+use App\Validation\Validator\TimeValidator;
+
+require __DIR__ . '/autoload.php';
+
+$commandLine = new CommandLineHelper($argv);
+$csvHelper = new CsvFileHelper();
+$validator = new ValidationManager();
+
+$validator
+    ->addValidator(new StringValidator)
+    ->addValidator(new DateValidator)
+    ->addValidator(new IntegerValidator)
+    ->addValidator(new FloatValidator)
+    ->addValidator(new BooleanValidator)
+    ->addValidator(new DateTimeValidator)
+    ->addValidator(new TimeValidator);
+
+$app = new Application($csvHelper, $commandLine, $validator);
+
+try {
+    $json = $app->run();
+
+    echo $json;
+} catch (\Exception $e) {
+    $message = sprintf('An error occured : %s', $e->getMessage());
+    echo "\e[1;37;41m$message\e[0m\n";
+}

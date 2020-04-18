@@ -1,0 +1,5 @@
+vendor/
+composer.json
+composer.lock
+phpstan.neon
+tests/cache/*
