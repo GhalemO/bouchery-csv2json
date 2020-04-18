@@ -1,5 +1,5 @@
 vendor/
-composer.json
+# composer.json
 composer.lock
-phpstan.neon
+# phpstan.neon
 tests/cache/*
