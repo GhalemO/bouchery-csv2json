@@ -7,3 +7,16 @@
 ## Tests unitaires
 
 `php main.php unit-test [path/to/a/SuiteFile.php]`
+
+## Procédure de prise en main immédiate :
+
+```
+git clone https://github.com/liorchamla/bouchery-csv2json.git
+
+cd bouchery-csv2json
+
+php main.php unit-test
+
+php main.php csv2json file.csv --aggregate "id" --desc schema.ini
+```
+
