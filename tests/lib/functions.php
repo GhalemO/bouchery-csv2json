@@ -223,6 +223,11 @@ function done(): void
     info("");
 }
 
+/**
+ * Clears all the files in the cache folder and returns the number of deleted files
+ *
+ * @return integer
+ */
 function clearCacheFolder(): int
 {
     $deletedFiles = 0;
@@ -239,6 +244,14 @@ function clearCacheFolder(): int
 }
 
 
+/**
+ * Re-creates a $argv style array out of a string
+ * Ex: app.php myfile.csv --fields "name,date" becomes ["app.php", "myfile.csv", "--fields", "name,date"]
+ *
+ * @param string $command
+ *
+ * @return array<string>
+ */
 function getArgumentsForCommand(string $command): array
 {
     return array_map(fn ($str) => str_replace('"', '', $str), explode(' ', $command));

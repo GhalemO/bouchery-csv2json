@@ -146,6 +146,15 @@ final class ValidationManager
         return ['fieldName' => $fieldName, 'metadata' => $this->generateMetadata($value)];
     }
 
+    /**
+     * Generate readable and easy to manipulate metadata out of a simple string
+     * Ex: "?integer" becomes ["type" => "integer", "optional" => true]
+     * Ex: "string" becomes ["type" => "string", "optional" => false]
+     * 
+     * @param string $value
+     *
+     * @return array<string,string|bool>
+     */
     protected function generateMetadata(string $value): array
     {
         // Handling the case of optionnal data
