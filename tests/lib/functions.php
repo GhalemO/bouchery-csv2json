@@ -63,9 +63,17 @@ function createCacheDataFile(string $content, string $filename = null): string
         $filename = uniqid() . '.tmp';
     }
 
-    $path = __DIR__ . '/../cache/' . $filename;
-    file_put_contents($path, $content);
-    return $path;
+    $path = __DIR__ . '/../cache/';
+
+    if (!is_dir($path)) {
+        if (!mkdir($path)) {
+            alert(sprintf("Could not create a 'cache' folder inside %s", $path));
+            exit();
+        };
+    }
+
+    file_put_contents($path . $filename, $content);
+    return $path . $filename;
 }
 
 /**

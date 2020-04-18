@@ -3,3 +3,4 @@ vendor/
 composer.lock
 # phpstan.neon
 tests/cache/*
+dist/
