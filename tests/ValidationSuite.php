@@ -10,6 +10,18 @@ describe('Validation processes tests suite', function () {
         // Setup :
         $manager = new ValidationManager();
 
+        it('should read a description INI line properly', function () use ($manager) {
+            $result = invokePrivateOrProtectedMethod($manager, 'analyseDescriptionLine', ['id = ?int']);
+
+            return assertSameArrays(['fieldName' => 'id', 'metadata' => ['type' => 'int', 'optional' => true]], $result);
+        });
+
+        it('should throw a ParsingMetadataException while reading a bad formatted INI line', function () use ($manager) {
+            return assertCodeWillThrowException(function () use ($manager) {
+                invokePrivateOrProtectedMethod($manager, 'analyseDescriptionLine', ['id ?int']);
+            }, ParsingMetadataException::class);
+        });
+
         it('should analyse a well formatted file', function () use ($manager) {
             $descFile = createCacheDataFile(
                 <<<DESC
