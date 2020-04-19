@@ -264,3 +264,26 @@ function getArgumentsForCommand(string $command): array
 {
     return array_map(fn ($str) => str_replace('"', '', $str), explode(' ', $command));
 }
+
+
+/**
+ * Invokes a private or protected method of an object and allows you to test it
+ *
+ * @param mixed $object
+ * @param string $methodName
+ * @param array $args
+ *
+ * @return mixed
+ */
+function invokePrivateOrProtectedMethod(&$object, string $methodName, array $args = [])
+{
+    $reflection = new ReflectionClass(get_class($object));
+    $method = $reflection->getMethod($methodName);
+    $method->setAccessible(true);
+
+    $result = $method->invokeArgs($object, $args);
+
+    $method->setAccessible(false);
+
+    return $result;
+}
