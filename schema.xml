@@ -1,0 +1,5 @@
+<schema>
+    <field id="name" type="string" />
+    <field id="id" type="integer" optional="true" />
+    <field id="date" type="datetime" />
+</schema>

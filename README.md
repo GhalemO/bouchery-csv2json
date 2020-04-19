@@ -17,10 +17,36 @@ cd bouchery-csv2json
 
 php main.php unit-test
 
-php main.php csv2json file.csv --aggregate "id" --desc schema.ini
+php main.php csv2json file.csv --aggregate "id" --desc schema.bini
+```
+
+## Fichiers de description (schémas)
+
+Vous pouvez fournir des fichiers de description dans deux formats :
+
+- Bouchery Description Format (.bini)
+- Xml Description Format (.xml)
+
+Les extensions sont importantes car c'est grâce à elles qu'on sait quel loader utiliser
+
+### Bouchery Description Format (.bini)
+
+Voir le reamde de Fred Bouchery
+
+### Xml Description Format (.xml)
+
+On peut décrire la structure et le formattage grâce à un fichier XML
+
+```xml
+<schema>
+    <field id="name" type="string" />
+    <field id="id" type="integer" optional="true" />
+    <field id="date" type="datetime" />
+</schema>
 ```
 
 ## Créer ses propres tests :
+
 Vous pouvez compléter les tests (qui sont loins d'être complets, notamment pour les validateurs) en créant un fichier dont le nom finit par `Suite.php` dans le dossier des tests :
 
 ```php
@@ -48,7 +74,7 @@ describe('A tutorial : how to decribe a suite', function() {
         return "Le test a foiré car X et Y";
 
         // La fonction assertEquals(mixed, mixed) vous permet de faire une comparaison stricte entre deux valeurs
-        return assertEquals($firstName, 'Lior');        
+        return assertEquals($firstName, 'Lior');
 
         // La fonction assertSameArrays(array, array) vous permet de faire une vérification entre deux tableaux
         return assertSameArrays(['L', 'i', 'o', 'r'], explode('', $firstName));
@@ -60,7 +86,7 @@ describe('A tutorial : how to decribe a suite', function() {
             $sum = $firstName + 12;
         }, Exception::class);
     });
-    
+
 
     // Vous pouvez imbriquer une suite dans une autre suite
     describe('Une suite imbriquée', function() use ($firstName) {
@@ -75,4 +101,5 @@ describe('Une deuxième suite dans le fichier', function() {
 ```
 
 ## Appeler une seule suite quand on fait tourner les tests
+
 La commande `php main.php unit-test` exécutera tous les fichiers finissant par `Suite.php` mais vous pouvez préciser une suite à faire tourner si vous le souhaitez avec `php main.php unit-test path/to/DesiredSuite.php` !

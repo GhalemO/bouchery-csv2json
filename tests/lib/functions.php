@@ -112,6 +112,8 @@ function it(string $description, callable $fn): void
         $result = call_user_func($fn);
     } catch (Exception $e) {
         $result = $e->getMessage();
+    } catch (Error $e) {
+        $result = $e->getMessage();
     }
 
 

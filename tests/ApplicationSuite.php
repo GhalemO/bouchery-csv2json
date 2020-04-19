@@ -6,6 +6,8 @@ use App\Csv\CsvFileHelper;
 use App\Exception\CsvInvalidValueException;
 use App\Exception\FileNotFoundException;
 use App\Validation\Exception\ValidationException;
+use App\Validation\Schema\BoucheryDescLoader;
+use App\Validation\Schema\XmlDescLoader;
 use App\Validation\ValidationManager;
 use App\Validation\Validator\DateValidator;
 use App\Validation\Validator\IntegerValidator;
@@ -35,7 +37,10 @@ describe('Application tests suite with a valid CSV', function () {
     ];
 
     // setup
-    $validationManager = new ValidationManager();
+    $boucheryDescLoader = new BoucheryDescLoader();
+    $xmlDescLoader = new XmlDescLoader();
+    $validationManager = (new ValidationManager())->addLoader($boucheryDescLoader)->addLoader($xmlDescLoader);
+
     $csvHelper = new CsvFileHelper();
 
     it('should print the expected JSON', function () use ($validationManager, $csvHelper, $expectedData) {
@@ -104,7 +109,7 @@ describe('Application tests suite with a valid CSV', function () {
     id=integer
     name=string
     date=date
-    DESC);
+    DESC, 'schema.bini');
 
     it('should accept a metadata file with --desc option', function () use ($validationManager, $csvHelper, $expectedData, $descFilePath) {
 
@@ -124,11 +129,12 @@ describe('Application tests suite with a valid CSV', function () {
         return assertEquals($expectedJson, $json);
     });
 
-    it('should throw an exception if a validator is missing but needed in --desc file', function () use ($csvHelper, $descFilePath) {
+    it('should throw an exception if a validator is missing but needed in --desc file', function () use ($csvHelper, $descFilePath, $boucheryDescLoader) {
         $commandLineHelper = new CommandLineHelper(getArgumentsForCommand("app.php tests/cache/application.csv --desc " . $descFilePath));
 
         $customValidationManager = new ValidationManager(); // We do not add validators to test its behavior withou
         // any validator!
+        $customValidationManager->addLoader($boucheryDescLoader);
 
         return assertCodeWillThrowException(function () use ($csvHelper, $commandLineHelper, $customValidationManager) {
             $app = new Application($csvHelper, $commandLineHelper, $customValidationManager);

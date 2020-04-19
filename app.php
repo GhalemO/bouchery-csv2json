@@ -3,6 +3,8 @@
 use App\Application;
 use App\CommandLine\CommandLineHelper;
 use App\Csv\CsvFileHelper;
+use App\Validation\Schema\BoucheryDescLoader;
+use App\Validation\Schema\XmlDescLoader;
 use App\Validation\ValidationManager;
 use App\Validation\Validator\BooleanValidator;
 use App\Validation\Validator\DateTimeValidator;
@@ -25,7 +27,9 @@ $validator
     ->addValidator(new FloatValidator)
     ->addValidator(new BooleanValidator)
     ->addValidator(new DateTimeValidator)
-    ->addValidator(new TimeValidator);
+    ->addValidator(new TimeValidator)
+    ->addLoader(new BoucheryDescLoader)
+    ->addLoader(new XmlDescLoader);
 
 $app = new Application($csvHelper, $commandLine, $validator);
 

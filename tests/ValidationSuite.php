@@ -1,6 +1,8 @@
 <?php
 
 use App\Validation\Exception\ParsingMetadataException;
+use App\Validation\Schema\BoucheryDescLoader;
+use App\Validation\Schema\XmlDescLoader;
 use App\Validation\ValidationManager;
 use App\Validation\Validator\BooleanValidator;
 use App\Validation\Validator\StringValidator;
@@ -9,20 +11,14 @@ describe('Validation processes tests suite', function () {
     describe('ValidationManager', function () {
         // Setup :
         $manager = new ValidationManager();
+        $boucheryLoader = new BoucheryDescLoader();
+        $xmlLoader = new XmlDescLoader();
 
-        it('should read a description INI line properly', function () use ($manager) {
-            $result = invokePrivateOrProtectedMethod($manager, 'analyseDescriptionLine', ['id = ?int']);
+        $manager
+            ->addLoader($boucheryLoader)
+            ->addLoader($xmlLoader);
 
-            return assertSameArrays(['fieldName' => 'id', 'metadata' => ['type' => 'int', 'optional' => true]], $result);
-        });
-
-        it('should throw a ParsingMetadataException while reading a bad formatted INI line', function () use ($manager) {
-            return assertCodeWillThrowException(function () use ($manager) {
-                invokePrivateOrProtectedMethod($manager, 'analyseDescriptionLine', ['id ?int']);
-            }, ParsingMetadataException::class);
-        });
-
-        it('should analyse a well formatted file', function () use ($manager) {
+        it('should analyse a well formatted .bini file', function () use ($manager) {
             $descFile = createCacheDataFile(
                 <<<DESC
         # Comment line
@@ -31,7 +27,7 @@ describe('Validation processes tests suite', function () {
         # Other comment
         date=datetime
         DESC,
-                'validation-schema.ini'
+                'validation-schema.bini'
             );
 
             $expectedMetadata = [
@@ -40,21 +36,23 @@ describe('Validation processes tests suite', function () {
                 'date' => ['type' => 'datetime', 'optional' => false]
             ];
 
-            return assertSameArrays($expectedMetadata, $manager->loadFromIniSchema($descFile));
+            $manager->loadSchemaFromFile($descFile);
+
+            return assertSameArrays($expectedMetadata, $manager->getConfiguration());
         });
 
-        it('should throw an exception if a description file is badly formatted', function () use ($manager) {
+        it('should throw an exception if a .bini file is badly formatted', function () use ($manager) {
             $badDescFile = createCacheDataFile(
                 <<<DESC
         # Comment line
         name
         id?integer
         DESC,
-                'bad-schema.ini'
+                'bad-schema.bini'
             );
 
             return assertCodeWillThrowException(function () use ($manager, $badDescFile) {
-                $manager->loadFromIniSchema($badDescFile);
+                $manager->loadSchemaFromFile($badDescFile);
             });
         });
     });

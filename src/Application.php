@@ -35,7 +35,7 @@ final class Application
         $fileName = $this->commandLineHelper->getCsvFileName();
 
         if (!file_exists($fileName)) {
-            throw new FileNotFoundException("No file was found located in '$fileName' ! Are you sure about the given path ? 🤔");
+            throw new FileNotFoundException("No file was found located in '$fileName' or can not be read ! Are you sure about the given path ? 🤔");
         }
 
         // Retrieving options from command line
@@ -49,10 +49,6 @@ final class Application
         // Opening CSV file and validating it
         $csvFile = fopen($fileName, 'r');
 
-        if (!$csvFile) {
-            throw new FileNotReadableException("We could not open '$fileName' even if it exists ! Are you sure you have read rights on it ? 🤔");
-        }
-
         // Guessing which fields will be extracted
         $fields = $this->guessWantedFieldsForExtraction($csvFile, $options);
 
@@ -62,7 +58,7 @@ final class Application
         // If a schema file was provided in options
         if (!empty($options['desc'])) {
             // We load the schema file in the validator engine
-            $this->validator->loadFromIniSchema($options['desc']);
+            $this->validator->loadSchemaFromFile($options['desc']);
 
             // We validate data and retrieve new formatted date (ex: empty optionnal fields become `NULL`)
             $data = $this->validateRows($data);
