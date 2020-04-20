@@ -4,10 +4,6 @@
 
 `php main.php csv2json file.csv [--fields "field1,field2,..." --aggregate "field" --desc path/to/schema`
 
-## Tests unitaires
-
-`php main.php unit-test [path/to/a/SuiteFile.php]`
-
 ## Procédure de prise en main immédiate :
 
 ```
@@ -27,11 +23,31 @@ Vous pouvez fournir des fichiers de description dans deux formats :
 - Bouchery Description Format (.bini)
 - Xml Description Format (.xml)
 
-Les extensions sont importantes car c'est grâce à elles qu'on sait quel loader utiliser
+Les extensions des fichiers sont importantes car c'est grâce à elles qu'on sait quel loader utiliser.
+
+Les types de données qu'on peut spécifier sont :
+* Nombres entiers : int | integer
+* Nombres à virgule flotante : float
+* Booléens : bool | boolean (accèpte : 1, 0, '1', '0', true, 'true', false, 'false', 'on', 'off', 'yes', 'no')
+* Dates : date (yyyy-MM-dd)
+* DateTimes : datetime (yyyy-MM-dd H:i:s)
+* Times : time (H:i:s)
+* Chaines de caractères : string
 
 ### Bouchery Description Format (.bini)
 
-Voir le reamde de Fred Bouchery
+On peut décrire la structure et le formattage grâce à un format spécifique :
+
+```
+# Un commentaire
+name=string
+# On a le droit aux espaces
+date = datetime
+# Et on peut définir des données optionnelles
+id=?int
+```
+
+Voir le readme de Fred Bouchery
 
 ### Xml Description Format (.xml)
 
@@ -44,6 +60,14 @@ On peut décrire la structure et le formattage grâce à un fichier XML
     <field id="date" type="datetime" />
 </schema>
 ```
+
+### Créer son propre format de description 
+Vous aurez peut-être envie de créer votre propre format de description (schema). Vous pouvez simplement créer une nouvelle classe qui implémente l'interface `DescLoaderInterface` et vous assurer de bien charger ce nouveau loader dans le fichier `app.php`
+
+
+## Tests unitaires
+
+`php main.php unit-test [path/to/a/SuiteFile.php]`
 
 ## Créer ses propres tests :
 
