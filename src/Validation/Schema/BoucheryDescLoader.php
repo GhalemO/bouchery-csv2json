@@ -3,7 +3,6 @@
 namespace App\Validation\Schema;
 
 use App\Exception\FileNotFoundException;
-use App\Exception\FileNotReadableException;
 use App\Validation\Exception\ParsingMetadataException;
 use Exception;
 

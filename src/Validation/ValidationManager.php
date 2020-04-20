@@ -2,14 +2,10 @@
 
 namespace App\Validation;
 
-use App\Exception\FileNotFoundException;
-use App\Exception\FileNotReadableException;
 use App\Validation\Exception\LoaderNotFoundException;
-use App\Validation\Exception\ParsingMetadataException;
 use App\Validation\Exception\ValidationException;
 use App\Validation\Schema\DescLoaderInterface;
 use App\Validation\Validator\ValidatorInterface;
-use Exception;
 
 /**
  * Handles validation for an array of values by matching each value with a rule set inside a description file
@@ -51,7 +47,12 @@ final class ValidationManager
         return $this;
     }
 
-    public function getConfiguration()
+    /**
+     * Returns the loaded (or empty) configuration as an array
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    public function getConfiguration(): array
     {
         return $this->configuration;
     }
@@ -71,10 +72,22 @@ final class ValidationManager
         return $this;
     }
 
-    public function loadSchemaFromFile(string $fileName)
+    /**
+     * Loads a description schema 
+     *
+     * @param string $fileName
+     * 
+     * @throws LoaderNotFoundException if no loader was found for the file's extension
+     *
+     * @return void
+     */
+    public function loadSchemaFromFile(string $fileName): void
     {
+        // Guessing which loader has to be used in this case
+        // Ex: for .bini file, we will use BoucheryDescLoader
         $loader = $this->findMatchingLoader($fileName);
 
+        // If no loader was found
         if (!$loader) {
             throw new LoaderNotFoundException(sprintf(
                 'No loader was found to analyse "%s" !',
@@ -82,18 +95,8 @@ final class ValidationManager
             ));
         }
 
+        // We load the configuration out of the file
         $this->configuration = $loader->load($fileName);
-    }
-
-    protected function findMatchingLoader(string $fileName)
-    {
-        foreach ($this->loaders as $loader) {
-            if ($loader->supports($fileName)) {
-                return $loader;
-            }
-        }
-
-        return null;
     }
 
     /**
@@ -165,5 +168,23 @@ final class ValidationManager
 
         // We return the row because after validation of its values, some of them could have change !
         return $row;
+    }
+
+    /**
+     * Loops over all the available loaders and returns the first one who supports the given filename
+     *
+     * @param string $fileName
+     *
+     * @return DescLoaderInterface|null
+     */
+    protected function findMatchingLoader(string $fileName): ?DescLoaderInterface
+    {
+        foreach ($this->loaders as $loader) {
+            if ($loader->supports($fileName)) {
+                return $loader;
+            }
+        }
+
+        return null;
     }
 }

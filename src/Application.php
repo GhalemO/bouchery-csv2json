@@ -7,7 +7,6 @@ use App\Csv\CsvFileHelper;
 use App\Exception\AggregationException;
 use App\Exception\CsvInvalidValueException;
 use App\Exception\FileNotFoundException;
-use App\Exception\FileNotReadableException;
 use App\Validation\Exception\ValidationException;
 use App\Validation\ValidationManager;
 
@@ -38,7 +37,8 @@ final class Application
             throw new FileNotFoundException("No file was found located in '$fileName' or can not be read ! Are you sure about the given path ? 🤔");
         }
 
-        // Retrieving options from command line
+        // Retrieving options from command line, if an option is marked as true, it means that the options REQUIRES 
+        // a value
         $options = $this->commandLineHelper->extractOptionsFromArgs([
             'fields' => true,
             'aggregate' => true,
@@ -60,7 +60,7 @@ final class Application
             // We load the schema file in the validator engine
             $this->validator->loadSchemaFromFile($options['desc']);
 
-            // We validate data and retrieve new formatted date (ex: empty optionnal fields become `NULL`)
+            // We validate data and retrieve new formatted data (ex: empty optionnal fields become `NULL`)
             $data = $this->validateRows($data);
         }
 
@@ -146,6 +146,8 @@ final class Application
 
     /**
      * Serializes an array in JSON format
+     * 
+     * TODO: Extract into a Formatter class with a FormatterInterface to enhance SRP and DIP
      *
      * @param array<int,array<string,mixed>> $data
      * @param boolean $pretty
