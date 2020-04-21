@@ -5,7 +5,7 @@ use App\CommandLine\CommandLineHelper;
 use App\Csv\CsvFileHelper;
 use App\Exception\CsvInvalidValueException;
 use App\Exception\FileNotFoundException;
-use App\Validation\Exception\ValidationException;
+use App\Formatter\JsonFormatter;
 use App\Validation\Schema\BoucheryDescLoader;
 use App\Validation\Schema\XmlDescLoader;
 use App\Validation\ValidationManager;
@@ -14,7 +14,7 @@ use App\Validation\Validator\IntegerValidator;
 use App\Validation\Validator\StringValidator;
 
 describe('Application tests suite with a valid CSV', function () {
-    $csvFile = createCacheDataFile(
+    createCacheDataFile(
         <<<DATA
     id,name,date
     1,Lior,2012-01-02
@@ -46,7 +46,7 @@ describe('Application tests suite with a valid CSV', function () {
     it('should print the expected JSON', function () use ($validationManager, $csvHelper, $expectedData) {
         $commandLineHelper = new CommandLineHelper(getArgumentsForCommand('app.php tests/cache/application.csv'));
 
-        $app = new Application($csvHelper, $commandLineHelper, $validationManager);
+        $app = (new Application($csvHelper, $commandLineHelper, $validationManager))->addFormatter(new JsonFormatter);
 
         $json = $app->run();
 
@@ -58,7 +58,7 @@ describe('Application tests suite with a valid CSV', function () {
     it('should take into account the --pretty option', function () use ($validationManager, $csvHelper, $expectedData) {
         $commandLineHelper = new CommandLineHelper(getArgumentsForCommand('app.php tests/cache/application.csv --pretty'));
 
-        $app = new Application($csvHelper, $commandLineHelper, $validationManager);
+        $app = (new Application($csvHelper, $commandLineHelper, $validationManager))->addFormatter(new JsonFormatter);
 
         $json = $app->run();
 
@@ -70,7 +70,7 @@ describe('Application tests suite with a valid CSV', function () {
     it('should aggregate data based on the --aggregate option', function () use ($validationManager, $csvHelper) {
         $commandLineHelper = new CommandLineHelper(getArgumentsForCommand('app.php tests/cache/application.csv --aggregate "id"'));
 
-        $app = new Application($csvHelper, $commandLineHelper, $validationManager);
+        $app = (new Application($csvHelper, $commandLineHelper, $validationManager))->addFormatter(new JsonFormatter);
 
         $json = $app->run();
         $expectedData = [
@@ -91,7 +91,7 @@ describe('Application tests suite with a valid CSV', function () {
     it('should extract only fields indicated with --fields option', function () use ($validationManager, $csvHelper) {
         $commandLineHelper = new CommandLineHelper(getArgumentsForCommand('app.php tests/cache/application.csv --fields "id,name"'));
 
-        $app = new Application($csvHelper, $commandLineHelper, $validationManager);
+        $app = (new Application($csvHelper, $commandLineHelper, $validationManager))->addFormatter(new JsonFormatter);
 
         $json = $app->run();
         $expectedData = [
@@ -120,7 +120,7 @@ describe('Application tests suite with a valid CSV', function () {
             ->addValidator(new StringValidator)
             ->addValidator(new DateValidator);
 
-        $app = new Application($csvHelper, $commandLineHelper, $validationManager);
+        $app = (new Application($csvHelper, $commandLineHelper, $validationManager))->addFormatter(new JsonFormatter);
 
         $json = $app->run();
 
@@ -137,7 +137,7 @@ describe('Application tests suite with a valid CSV', function () {
         $customValidationManager->addLoader($boucheryDescLoader);
 
         return assertCodeWillThrowException(function () use ($csvHelper, $commandLineHelper, $customValidationManager) {
-            $app = new Application($csvHelper, $commandLineHelper, $customValidationManager);
+            $app = (new Application($csvHelper, $commandLineHelper, $customValidationManager))->addFormatter(new JsonFormatter);
 
             $app->run(); // Should throw an exception since it does not have validation !
         }, CsvInvalidValueException::class);

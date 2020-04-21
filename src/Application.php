@@ -7,6 +7,8 @@ use App\Csv\CsvFileHelper;
 use App\Exception\AggregationException;
 use App\Exception\CsvInvalidValueException;
 use App\Exception\FileNotFoundException;
+use App\Exception\FormatterNotFoundException;
+use App\Formatter\FormatterInterface;
 use App\Validation\Exception\ValidationException;
 use App\Validation\ValidationManager;
 
@@ -16,11 +18,23 @@ final class Application
     protected CommandLineHelper $commandLineHelper;
     protected ValidationManager $validator;
 
+    /**
+     * @var array<FormatterInterface>
+     */
+    protected array $formatters = [];
+
     public function __construct(CsvFileHelper $csvHelper, CommandLineHelper $commandLineHelper, ValidationManager $validator)
     {
         $this->csvHelper = $csvHelper;
         $this->commandLineHelper = $commandLineHelper;
         $this->validator = $validator;
+    }
+
+    public function addFormatter(FormatterInterface $formatter): self
+    {
+        $this->formatters[] = $formatter;
+
+        return $this;
     }
 
     /**
@@ -43,7 +57,8 @@ final class Application
             'fields' => true,
             'aggregate' => true,
             'pretty' => false,
-            'desc' => true
+            'desc' => true,
+            'format' => true
         ]);
 
         // Opening CSV file and validating it
@@ -82,10 +97,49 @@ final class Application
             $data = $this->getAggregatedData($data, $aggregateField);
         }
 
-        // Returning JSON data (pretty or not (here I am, you can't hide))
-        $mustBePretty = !empty($options['pretty']);
+        // Returning the formatted string
+        return $this->format($data, $options);
+    }
 
-        return $this->formatDataIntoJson($data, $mustBePretty);
+    /**
+     * Format the data structure into the desired format
+     *
+     * @param array<string,mixed> $data
+     * @param array<string,mixed> $options
+     *
+     * @return string
+     */
+    protected function format(array $data, array $options = []): string
+    {
+        // Guessing format type (default: 'json')
+        $format = $options['format'] ?? 'json';
+
+        // Guessing formatter :
+        $formatter = $this->getFormatter($format);
+
+        if (!$formatter) {
+            throw new FormatterNotFoundException("No formatter found for format '$format' !");
+        }
+
+        return $formatter->format($data, $options);
+    }
+
+    /**
+     * Finds the good formatter and returns it (or null if we found nothing 😢)
+     *
+     * @param string $format
+     *
+     * @return FormatterInterface|null
+     */
+    protected function getFormatter(string $format): ?FormatterInterface
+    {
+        foreach ($this->formatters as $formatter) {
+            if ($formatter->supports($format)) {
+                return $formatter;
+            }
+        }
+
+        return null;
     }
 
     /**
