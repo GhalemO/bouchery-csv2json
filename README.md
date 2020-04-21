@@ -16,6 +16,15 @@ php main.php unit-test
 php main.php csv2json file.csv --aggregate "id" --desc schema.bini
 ```
 
+## Formats de sortie :
+
+Deux formats de sortie sont disponibles : XML et JSON
+
+- JSON : format par défaut (mais aussi accessible avec `--format json`
+- XML : accessible avec `--format xml`
+
+Les deux options fonctionne en mode PRETTY ou sans (en ajoutant `--pretty`)
+
 ## Fichiers de description (schémas)
 
 Vous pouvez fournir des fichiers de description dans deux formats :
